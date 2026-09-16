@@ -1,0 +1,27 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/main.js b/main.js
+index 8b137891791fe96927ad78e64b0aad7bded08bdc..8123f6c65d1414da2ca1fe1b318a2b64a6605d82 100644
+--- a/main.js
++++ b/main.js
+@@ -1 +1,21 @@
++const movies = [
++  ['\''Tiên Nghịch'\'','\''Tien-Nghich-300x450.webp'\'','\''Tập 158'\'','\''9.5'\'','\''series'\'','\''HOT'\''],['\''Mục Thần Ký'\'','\''Muc-Than-Ky-12-hh3d-300x450.webp'\'','\''Tập 100'\'','\''9.3'\'','\''series'\'','\''HOT'\''],['\''Đấu Phá Thương Khung P5'\'','\''Dau-Pha-Thuong-Khung-Phan-5-300x450.webp'\'','\''Tập 210'\'','\''9.4'\'','\''series'\'','\''MỚI'\''],['\''Phàm Nhân Tu Tiên'\'','\''Pham-Nhan-Tu-Tien-300x450.webp'\'','\''Tập 191'\'','\''9.6'\'','\''series'\'','\''HOT'\''],['\''Thế Giới Hoàn Mỹ'\'','\''The-Gioi-Hoan-My-300x450.webp'\'','\''Tập 286'\'','\''9.2'\'','\''series'\'','\'''\''],['\''Già Thiên'\'','\''Gia-Thien-300x450.webp'\'','\''Tập 181'\'','\''9.1'\'','\''series'\'','\'''\''],['\''Thôn Phệ Tinh Không'\'','\''Thon-Phe-Tinh-Khong-1-300x450.webp'\'','\''Tập 241'\'','\''9.0'\'','\''series'\'','\'''\''],['\''Nhất Niệm Vĩnh Hằng'\'','\''Nhat-Niem-Vinh-Hang-300x450.webp'\'','\''Tập 176'\'','\''8.9'\'','\''completed'\'','\''HOÀN THÀNH'\''],['\''Sư Huynh À Sư Huynh'\'','\''Su-Huynh-A-Su-Huynh-300x450.webp'\'','\''Tập 158'\'','\''8.7'\'','\''series'\'','\'''\''],['\''Luyện Khí Mười Vạn Năm'\'','\''Luyen-Khi-Muoi-Van-Nam-300x450.webp'\'','\''Tập 377'\'','\''8.5'\'','\''series'\'','\'''\''],['\''Vạn Giới Độc Tôn'\'','\''Van-Gioi-Doc-Ton-300x450.webp'\'','\''Tập 483'\'','\''8.4'\'','\''movie'\'','\'''\''],['\''Võ Thần Chúa Tể'\'','\''Vo-Than-Chua-Te-300x450.webp'\'','\''Tập 692'\'','\''8.3'\'','\''movie'\'','\'''\'']
++].map(([title,file,episode,rating,type,badge])=>({title,poster:`https://yanhh3d.ee/wp-content/uploads/2025/04/${file}`,episode,rating,type,badge}));
+ 
++const grid=document.querySelector('\''#movieGrid'\''), empty=document.querySelector('\''#emptyState'\''), loadMore=document.querySelector('\''#loadMore'\'');
++let activeFilter='\''all'\'', searchTerm='\'''\'', shown=6;
++const movieCard=m=>`<article class="movie-card" tabindex="0" data-title="${m.title}"><div class="poster"><img src="${m.poster}" alt="Poster ${m.title}" loading="lazy" onerror="this.parentElement.parentElement.style.display='\''none'\''">${m.badge?`<span class="badge">${m.badge}</span>`:'\'''\''}<span class="episode">${m.episode}</span></div><h3 class="movie-name">${m.title}</h3><div class="movie-details"><span class="movie-rating"><i class="fa-solid fa-star"></i> ${m.rating}</span><span>Vietsub</span></div></article>`;
++function renderMovies(){const filtered=movies.filter(m=>(activeFilter==='\''all'\''||m.type===activeFilter)&&m.title.toLowerCase().includes(searchTerm));grid.innerHTML=filtered.slice(0,shown).map(movieCard).join('\'''\'');empty.hidden=filtered.length>0;loadMore.hidden=shown>=filtered.length;}
++document.querySelector('\''#filters'\'').addEventListener('\''click'\'',e=>{if(!e.target.matches('\''.filter'\''))return;document.querySelectorAll('\''.filter'\'').forEach(b=>b.classList.toggle('\''active'\'',b===e.target));activeFilter=e.target.dataset.filter;shown=6;renderMovies();});
++loadMore.addEventListener('\''click'\'',()=>{shown+=6;renderMovies();});
++
++const schedule=['\''Tiên Nghịch'\'','\''Đấu Phá Thương Khung'\'','\''Phàm Nhân Tu Tiên'\'','\''Mục Thần Ký'\'','\''Thế Giới Hoàn Mỹ'\'','\''Già Thiên'\''];
++document.querySelector('\''#scheduleRow'\'').innerHTML=schedule.map((title,i)=>`<article class="schedule-card"><span class="schedule-day">${i<2?'\''Hôm nay'\'':'\''Ngày mai'\''}</span><h3 class="schedule-title">${title}</h3><span class="schedule-episode">${movies.find(m=>m.title===title)?.episode||'\''Tập mới'\''}</span></article>`).join('\'''\'');
++
++const searchButton=document.querySelector('\''#searchButton'\''),searchPanel=document.querySelector('\''#searchPanel'\''),searchInput=document.querySelector('\''#searchInput'\'');
++searchButton.addEventListener('\''click'\'',()=>{searchPanel.classList.toggle('\''open'\'');if(searchPanel.classList.contains('\''open'\''))searchInput.focus();});
++document.querySelector('\''#searchForm'\'').addEventListener('\''submit'\'',e=>{e.preventDefault();searchTerm=searchInput.value.trim().toLowerCase();shown=12;renderMovies();document.querySelector('\''#latest'\'').scrollIntoView({behavior:'\''smooth'\''});});
++searchInput.addEventListener('\''input'\'',()=>{searchTerm=searchInput.value.trim().toLowerCase();shown=12;renderMovies();});
++const menuButton=document.querySelector('\''#menuButton'\''),nav=document.querySelector('\''#mainNav'\'');menuButton.addEventListener('\''click'\'',()=>{const open=nav.classList.toggle('\''open'\'');menuButton.setAttribute('\''aria-expanded'\'',open);});nav.addEventListener('\''click'\'',()=>nav.classList.remove('\''open'\''));
++const toast=document.querySelector('\''#toast'\'');let toastTimer;function notify(message){toast.textContent=message;toast.classList.add('\''show'\'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('\''show'\''),2600);}document.addEventListener('\''click'\'',e=>{const watch=e.target.closest('\''[data-watch]'\''),favorite=e.target.closest('\''[data-favorite]'\'');if(watch)notify(`Đang mở ${watch.dataset.watch}...`);if(favorite){favorite.innerHTML='\''<i class="fa-solid fa-bookmark"></i> Đã theo dõi'\'';notify(`Đã thêm ${favorite.dataset.favorite} vào danh sách theo dõi.`);}});
++renderMovies();
+' | git apply --3way)
